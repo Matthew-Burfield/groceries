@@ -1,5 +1,5 @@
 {
-  "name": "undefined",
+  "name": "@groceries/mobile",
   "version": "0.0.1",
   "private": true,
   "dependencies": {
@@ -9,7 +9,11 @@
     "react-native": "*",
     "expo": "*",
     "react-native-svg": "*",
-    "react-native-web": "*"
+    "react-native-web": "*",
+    "@nx/expo": "*",
+    "@expo/metro-config": "*",
+    "react-native-svg-transformer": "*",
+    "react": "*"
   },
   "scripts": {
     "eas-build-pre-install": "cd ../../ && node tools/scripts/eas-build-pre-install.mjs . apps/undefined && cp package-lock.json apps/undefined",

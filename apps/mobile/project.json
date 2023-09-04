@@ -1,7 +1,7 @@
 {
-  "name": "undefined",
+  "name": "mobile",
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
-  "sourceRoot": "apps/undefined/src",
+  "sourceRoot": "apps/mobile/src",
   "projectType": "application",
   "targets": {
     "start": {
@@ -46,7 +46,7 @@
     "download": {
       "executor": "@nx/expo:download",
       "options": {
-        "output": "apps/undefined/dist"
+        "output": "apps/mobile/dist"
       }
     },
     "sync-deps": {
@@ -75,7 +75,7 @@
       "dependsOn": ["ensure-symlink", "sync-deps"],
       "options": {
         "platform": "all",
-        "outputDir": "../../dist/apps/undefined"
+        "outputDir": "../../dist/apps/mobile"
       }
     },
     "export-web": {
@@ -88,14 +88,14 @@
       "executor": "@nx/linter:eslint",
       "outputs": ["{options.outputFile}"],
       "options": {
-        "lintFilePatterns": ["apps/undefined/**/*.{ts,tsx,js,jsx}"]
+        "lintFilePatterns": ["apps/mobile/**/*.{ts,tsx,js,jsx}"]
       }
     },
     "test": {
       "executor": "@nx/jest:jest",
       "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
       "options": {
-        "jestConfig": "apps/undefined/jest.config.ts",
+        "jestConfig": "apps/mobile/jest.config.ts",
         "passWithNoTests": true
       },
       "configurations": {

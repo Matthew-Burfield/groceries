@@ -1,0 +1,2 @@
+1. Routing looks to be working, but I need to handle the redirect from google auth
+    See: https://github.com/expo/expo/issues/22662

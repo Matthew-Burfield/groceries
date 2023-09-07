@@ -11,7 +11,10 @@ const SignInWithGoogle = () => {
   // https://docs.expo.dev/guides/authentication/#improving-user-experience
   useWarmUpBrowser();
 
-  const { startOAuthFlow } = useOAuth({ strategy: 'oauth_google' });
+  const { startOAuthFlow } = useOAuth({
+    strategy: 'oauth_google',
+    redirectUrl: 'exp://192.168.20.22:8081/--/home',
+  });
 
   const onPress = React.useCallback(async () => {
     try {

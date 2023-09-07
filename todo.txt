@@ -1,2 +1,4 @@
-1. Routing looks to be working, but I need to handle the redirect from google auth
-    See: https://github.com/expo/expo/issues/22662
+1. Link to a server to pull some data
+    Mock the DB for this step so it can be tested.
+    Look into fastly for this.
+2. Post some data and have a pubsub auto update

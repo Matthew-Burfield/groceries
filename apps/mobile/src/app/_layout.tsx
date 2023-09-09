@@ -3,6 +3,7 @@ import { ClerkProvider } from '@clerk/clerk-expo';
 import React from 'react';
 import Constants from 'expo-constants';
 import * as SecureStore from 'expo-secure-store';
+import { SafeAreaView } from 'react-native';
 
 const tokenCache = {
   async getToken(key: string) {
@@ -21,15 +22,17 @@ const tokenCache = {
   },
 };
 
-export const AppLayout = () => {
+export const RootLayout = () => {
   return (
     <ClerkProvider
       tokenCache={tokenCache}
       publishableKey={Constants.expoConfig?.extra?.clerkPublishableKey}
     >
-      <Slot />
+      <SafeAreaView>
+        <Slot />
+      </SafeAreaView>
     </ClerkProvider>
   );
 };
 
-export default AppLayout;
+export default RootLayout;

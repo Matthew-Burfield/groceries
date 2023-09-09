@@ -1,5 +1,5 @@
-import SignUpScreen from './SignUpScreen';
+import SignInWithGoogle from './components/SignInWithGoogle';
 import SignOutButton from './components/SignOutButton';
 
-export { SignUpScreen };
+export { SignInWithGoogle };
 export { SignOutButton };

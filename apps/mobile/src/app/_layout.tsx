@@ -21,28 +21,15 @@ const tokenCache = {
   },
 };
 
-export const RootLayout = () => {
+function RootLayout() {
   return (
     <ClerkProvider
       tokenCache={tokenCache}
       publishableKey={Constants.expoConfig?.extra?.clerkPublishableKey}
     >
       <Stack screenOptions={{ headerShown: false }} />
-      {/* <Stack
-        screenOptions={{
-          headerStyle: {
-            backgroundColor: '#f4511e',
-          },
-          headerTintColor: '#fff',
-          headerTitleStyle: {
-            fontWeight: 'bold',
-          },
-        }}
-      >
-        <Stack.Screen name="index" options={{ title: 'Home' }} />
-      </Stack> */}
     </ClerkProvider>
   );
-};
+}
 
 export default RootLayout;

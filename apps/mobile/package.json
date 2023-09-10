@@ -19,7 +19,8 @@
     "expo-constants": "*",
     "expo-web-browser": "*",
     "expo-secure-store": "*",
-    "expo-router": "*"
+    "expo-router": "*",
+    "lucide-react-native": "*"
   },
   "scripts": {
     "eas-build-pre-install": "cd ../../ && node tools/scripts/eas-build-pre-install.mjs . apps/undefined && cp package-lock.json apps/undefined",

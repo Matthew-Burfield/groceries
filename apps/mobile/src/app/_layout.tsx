@@ -1,9 +1,8 @@
-import { Slot } from 'expo-router';
+import { Stack } from 'expo-router';
 import { ClerkProvider } from '@clerk/clerk-expo';
 import React from 'react';
 import Constants from 'expo-constants';
 import * as SecureStore from 'expo-secure-store';
-import { SafeAreaView } from 'react-native';
 
 const tokenCache = {
   async getToken(key: string) {
@@ -28,9 +27,20 @@ export const RootLayout = () => {
       tokenCache={tokenCache}
       publishableKey={Constants.expoConfig?.extra?.clerkPublishableKey}
     >
-      <SafeAreaView>
-        <Slot />
-      </SafeAreaView>
+      <Stack
+        screenOptions={{
+          headerStyle: {
+            backgroundColor: '#f4511e',
+          },
+          headerTintColor: '#fff',
+          headerTitleStyle: {
+            fontWeight: 'bold',
+          },
+        }}
+      >
+        <Stack.Screen name="index" options={{ title: 'Home' }} />
+        <Stack.Screen name="settings" options={{ title: 'Settings' }} />
+      </Stack>
     </ClerkProvider>
   );
 };

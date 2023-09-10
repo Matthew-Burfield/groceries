@@ -1,4 +1,4 @@
-import { Stack } from 'expo-router';
+import { Stack, Tabs } from 'expo-router';
 import { ClerkProvider } from '@clerk/clerk-expo';
 import React from 'react';
 import Constants from 'expo-constants';
@@ -27,7 +27,8 @@ export const RootLayout = () => {
       tokenCache={tokenCache}
       publishableKey={Constants.expoConfig?.extra?.clerkPublishableKey}
     >
-      <Stack
+      <Stack screenOptions={{ headerShown: false }} />
+      {/* <Stack
         screenOptions={{
           headerStyle: {
             backgroundColor: '#f4511e',
@@ -39,8 +40,7 @@ export const RootLayout = () => {
         }}
       >
         <Stack.Screen name="index" options={{ title: 'Home' }} />
-        <Stack.Screen name="settings" options={{ title: 'Settings' }} />
-      </Stack>
+      </Stack> */}
     </ClerkProvider>
   );
 };

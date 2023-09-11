@@ -15,7 +15,10 @@
     "skipDefaultLibCheck": true,
     "baseUrl": ".",
     "paths": {
-      "@groceries/auth": ["libs/auth/src/index.ts"]
+      "@groceries/auth": ["libs/auth/src/index.ts"],
+      "@groceries/features/shopping-list": [
+        "libs/features/shopping-list/src/index.ts"
+      ]
     }
   },
   "exclude": ["node_modules", "tmp"]

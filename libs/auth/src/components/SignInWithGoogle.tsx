@@ -13,7 +13,7 @@ const SignInWithGoogle = () => {
 
   const { startOAuthFlow } = useOAuth({
     strategy: 'oauth_google',
-    redirectUrl: 'exp://192.168.20.22:8081/--/home',
+    redirectUrl: 'exp://192.168.20.22:8081/--/portal/home',
   });
 
   const onPress = React.useCallback(async () => {

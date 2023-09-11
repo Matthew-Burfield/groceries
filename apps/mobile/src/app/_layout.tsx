@@ -1,4 +1,4 @@
-import { Stack, Tabs } from 'expo-router';
+import { Stack } from 'expo-router';
 import { ClerkProvider } from '@clerk/clerk-expo';
 import React from 'react';
 import Constants from 'expo-constants';

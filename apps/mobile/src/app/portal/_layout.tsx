@@ -1,6 +1,7 @@
 import { Tabs } from 'expo-router';
+import React from 'react';
 
-function AuthLayout() {
+function PortalLayout() {
   return (
     <Tabs screenOptions={{ headerShown: false }}>
       <Tabs.Screen
@@ -15,4 +16,4 @@ function AuthLayout() {
   );
 }
 
-export default AuthLayout;
+export default PortalLayout;

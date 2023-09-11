@@ -1,4 +1,5 @@
-import { Link, Stack, Tabs } from 'expo-router';
+import { SignOutButton } from '@groceries/auth';
+import { Link, Stack } from 'expo-router';
 import React from 'react';
 import { Text, View } from 'react-native';
 
@@ -8,7 +9,8 @@ function Settings() {
       <Stack.Screen options={{ title: 'Settings Stack' }} />
       <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
         <Text>Settings</Text>
-        <Link href={{ pathname: '/(auth)/home' }}>Home</Link>
+        <Link href={{ pathname: '/portal/home' }}>Home</Link>
+        <SignOutButton />
       </View>
     </>
   );

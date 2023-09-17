@@ -1,6 +1,8 @@
 import { View, Text, Pressable, StyleSheet } from 'react-native';
 import { AntDesign } from '@expo/vector-icons';
 
+// https://github.com/WrathChaos/react-native-bouncy-checkbox/tree/master
+
 export interface CheckboxProps {
   text: string;
   isChecked: boolean;

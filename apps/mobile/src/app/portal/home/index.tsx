@@ -3,9 +3,10 @@ import {
   ShoppingListGroup,
   ShoppingListItem,
 } from '@groceries/features/shopping-list';
+import Checkbox from '@groceries/ui/checkbox';
 import { Stack } from 'expo-router';
 import React from 'react';
-import { View } from 'react-native';
+import { Text, View } from 'react-native';
 
 const foodGroups = [
   'fruit_and_vegetables',
@@ -27,6 +28,7 @@ const foodGroups = [
 
 type FoodGroup = (typeof foodGroups)[number];
 type Item = {
+  id: number;
   name: string;
   type: FoodGroup;
   isComplete: boolean;
@@ -36,12 +38,14 @@ type Item = {
 function Home() {
   const items: Item[] = [
     {
+      id: 1,
       name: 'Chicken breast',
       type: 'meat_and_seafood',
       isComplete: false,
       quantity: '2kg',
     },
     {
+      id: 2,
       name: 'Chocolate',
       type: 'snacks_and_confectionary',
       isComplete: true,
@@ -58,16 +62,18 @@ function Home() {
             return null;
           }
           return (
-            <>
+            <React.Fragment key={group}>
               <ShoppingListGroup asChild>
-                <View>icon + {group}</View>
+                <View>
+                  <Text>icon + {group}</Text>
+                </View>
               </ShoppingListGroup>
               {foodGroupItems.map((item) => (
-                <ShoppingListItem asChild>
-                  <View>{item.name} + edit button + isCompleted styles</View>
+                <ShoppingListItem key={item.id} asChild>
+                  <Checkbox isChecked={item.isComplete} text={item.name} />
                 </ShoppingListItem>
               ))}
-            </>
+            </React.Fragment>
           );
         })}
       </ShoppingList>

@@ -18,7 +18,8 @@
       "@groceries/auth": ["libs/auth/src/index.ts"],
       "@groceries/features/shopping-list": [
         "libs/features/shopping-list/src/index.ts"
-      ]
+      ],
+      "@groceries/ui/checkbox": ["libs/ui/checkbox/src/index.ts"]
     }
   },
   "exclude": ["node_modules", "tmp"]

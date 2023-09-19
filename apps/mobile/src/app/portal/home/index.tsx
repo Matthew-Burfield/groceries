@@ -6,7 +6,7 @@ import {
 import Checkbox from '@groceries/ui/checkbox';
 import { Stack } from 'expo-router';
 import React from 'react';
-import { Text, View } from 'react-native';
+import { GestureResponderEvent, Text, View } from 'react-native';
 
 const foodGroups = [
   'fruit_and_vegetables',
@@ -35,22 +35,85 @@ type Item = {
   quantity?: string;
 };
 
+const items: Item[] = [
+  {
+    id: 1,
+    name: 'Chicken breast',
+    type: 'meat_and_seafood',
+    isComplete: false,
+    quantity: '2kg',
+  },
+  {
+    id: 2,
+    name: 'Chocolate',
+    type: 'snacks_and_confectionary',
+    isComplete: true,
+  },
+];
+
+function useData<TReturnType>({
+  key,
+  fetchFn,
+}: {
+  key: string[];
+  fetchFn: () => Promise<TReturnType>;
+}) {
+  const queryClient = useQueryClient();
+  const queryData = useQuery<TReturnType>({
+    queryKey: key,
+    queryFn: fetchFn,
+  });
+
+  const update = (updateFn: (oldItems: TReturnType) => TReturnType) => {
+    queryClient.setQueryData(key, updateFn);
+  };
+
+  return {
+    status: queryData.status,
+    data: queryData.data,
+    error: queryData.error,
+    update,
+  };
+}
+
+function useItems() {
+  return useData<Item[]>({
+    key: ['items'],
+    fetchFn: () => Promise.resolve(items),
+  });
+}
+
+function usePubSub<TMessage>({
+  channelName,
+  action,
+}: {
+  channelName: string;
+  action: (message: TMessage) => void;
+}) {
+  useEffect(() => {
+    channel.subscribe(channelName, action);
+
+    return () => channel.unsubscribe(channelName);
+  }, []);
+}
+
 function Home() {
-  const items: Item[] = [
-    {
-      id: 1,
-      name: 'Chicken breast',
-      type: 'meat_and_seafood',
-      isComplete: false,
-      quantity: '2kg',
+  const { status, data: items, error, update: updateItems } = useItems();
+
+  usePubSub<Message>({
+    channel: 'items',
+    action: function (message) {
+      switch (message.type) {
+        case 'item_added':
+        case 'item_updated':
+        case 'item_deleted':
+        case 'item_completed':
+        case 'item_uncompleted': {
+          updateItems((items) => [...items, message.item]);
+        }
+      }
     },
-    {
-      id: 2,
-      name: 'Chocolate',
-      type: 'snacks_and_confectionary',
-      isComplete: true,
-    },
-  ];
+  });
 
   return (
     <>

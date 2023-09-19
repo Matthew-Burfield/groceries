@@ -20,7 +20,8 @@
     "expo-web-browser": "*",
     "expo-secure-store": "*",
     "expo-router": "*",
-    "lucide-react-native": "*"
+    "lucide-react-native": "*",
+    "@expo/vector-icons": "*"
   },
   "scripts": {
     "eas-build-pre-install": "cd ../../ && node tools/scripts/eas-build-pre-install.mjs . apps/undefined && cp package-lock.json apps/undefined",

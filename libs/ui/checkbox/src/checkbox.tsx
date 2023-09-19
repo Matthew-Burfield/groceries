@@ -1,4 +1,10 @@
-import { View, Text, Pressable, StyleSheet } from 'react-native';
+import {
+  View,
+  Text,
+  Pressable,
+  StyleSheet,
+  GestureResponderEvent,
+} from 'react-native';
 import { AntDesign } from '@expo/vector-icons';
 
 // https://github.com/WrathChaos/react-native-bouncy-checkbox/tree/master
@@ -6,14 +12,12 @@ import { AntDesign } from '@expo/vector-icons';
 export interface CheckboxProps {
   text: string;
   isChecked: boolean;
+  onPress: (event: GestureResponderEvent) => Promise<boolean>;
 }
 
 export function Checkbox(props: CheckboxProps) {
-  const onPress = () => {
-    return null;
-  };
   return (
-    <Pressable onPress={onPress} style={styles.container}>
+    <Pressable onPress={props.onPress} style={styles.container}>
       <CheckboxIcon isChecked={props.isChecked} />
       <CheckboxText text={props.text} />
     </Pressable>

@@ -2,3 +2,18 @@
     Mock the DB for this step so it can be tested.
     Look into fastly for this.
 2. Post some data and have a pubsub auto update
+
+
+3. I've mocked out getting grocery items with tanstack query and a ably pubsub.
+  This should be enough to get started.
+
+
+Inspiration:
+https://dona.ai
+
+
+pubsub: https://ably.com/docs
+  - https://ably.com/blog/liveapp-with-nextjs-prisma-planetscale#next-steps
+  - https://github.com/ably-labs/ably-next-prisma-planetscale
+
+orm: https://orm.drizzle.team/docs/overview

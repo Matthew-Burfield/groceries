@@ -1,9 +1,5 @@
 {
-  "extends": [
-    "plugin:@nx/react",
-    "../../.eslintrc.json",
-    "plugin:@tanstack/eslint-plugin-query/recommended"
-  ],
+  "extends": ["plugin:@nx/react", "../../../../.eslintrc.json"],
   "ignorePatterns": [
     "!**/*",
     ".expo",
@@ -12,7 +8,6 @@
     "cache",
     "dist"
   ],
-  "plugins": ["@tanstack/query"],
   "overrides": [
     {
       "files": ["*.ts", "*.tsx", "*.js", "*.jsx"],

@@ -3,6 +3,9 @@ import { ClerkProvider } from '@clerk/clerk-expo';
 import React from 'react';
 import Constants from 'expo-constants';
 import * as SecureStore from 'expo-secure-store';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+
+const queryClient = new QueryClient();
 
 const tokenCache = {
   async getToken(key: string) {
@@ -23,16 +26,18 @@ const tokenCache = {
 
 function RootLayout() {
   return (
-    <ClerkProvider
-      tokenCache={tokenCache}
-      publishableKey={Constants.expoConfig?.extra?.clerkPublishableKey}
-    >
-      <Stack screenOptions={{ headerShown: false }}>
-        <Stack.Screen name="index" />
-        <Stack.Screen name="login" />
-        <Stack.Screen name="sign-up" />
-      </Stack>
-    </ClerkProvider>
+    <QueryClientProvider client={queryClient}>
+      <ClerkProvider
+        tokenCache={tokenCache}
+        publishableKey={Constants.expoConfig?.extra?.clerkPublishableKey}
+      >
+        <Stack screenOptions={{ headerShown: false }}>
+          <Stack.Screen name="index" />
+          <Stack.Screen name="login" />
+          <Stack.Screen name="sign-up" />
+        </Stack>
+      </ClerkProvider>
+    </QueryClientProvider>
   );
 }
 

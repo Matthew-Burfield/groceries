@@ -16,6 +16,9 @@
     "baseUrl": ".",
     "paths": {
       "@groceries/auth": ["libs/auth/src/index.ts"],
+      "@groceries/client/util/remote-data": [
+        "libs/client/util/remote-data/src/index.ts"
+      ],
       "@groceries/features/shopping-list": [
         "libs/features/shopping-list/src/index.ts"
       ],

@@ -1,12 +1,47 @@
 import * as React from 'react';
 import { View } from 'react-native';
+import { Item, useItems } from './data-access/useItems';
+import { foodGroups } from './constants/food-groups';
+
+type Group = (typeof foodGroups)[number];
+
+/* ----------------------------------------------------------------
+ * ShoppingGroup
+ * --------------------------------------------------------------*/
+
+const SHOPPING_LIST_NAME = 'ShoppingList';
 
 type ShoppingListProps = {
-  children: React.ReactNode;
+  ListGroup: (group: Group) => React.ReactNode;
+  ListItem: (item: Item) => React.ReactNode;
 };
+
 function ShoppingList(props: ShoppingListProps) {
-  return props.children;
+  const { status, data: items, error } = useItems();
+  if (status === 'loading') {
+    return <View>Loading...</View>;
+  }
+  if (error) {
+    return <View>{error.message}</View>;
+  }
+  return (
+    <View>
+      {foodGroups.map((group) => {
+        if (items === void 0) {
+          return null;
+        }
+        const foodGroupItems = items.filter((item) => item.type === group);
+        return (
+          <React.Fragment key={group}>
+            {props.ListGroup(group)}
+            {foodGroupItems.map((item) => props.ListItem(item))}
+          </React.Fragment>
+        );
+      })}
+    </View>
+  );
 }
+ShoppingList.displayName = SHOPPING_LIST_NAME;
 
 /* ----------------------------------------------------------------
  * ShoppingGroup

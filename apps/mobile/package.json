@@ -21,7 +21,8 @@
     "expo-secure-store": "*",
     "expo-router": "*",
     "lucide-react-native": "*",
-    "@expo/vector-icons": "*"
+    "@expo/vector-icons": "*",
+    "@tanstack/react-query": "*"
   },
   "scripts": {
     "eas-build-pre-install": "cd ../../ && node tools/scripts/eas-build-pre-install.mjs . apps/undefined && cp package-lock.json apps/undefined",

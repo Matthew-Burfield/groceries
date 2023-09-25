@@ -36,6 +36,7 @@
     "@nx/jest": "16.7.4",
     "@nx/js": "16.7.4",
     "@nx/linter": "16.7.4",
+    "@nx/node": "^16.9.0",
     "@nx/workspace": "16.7.4",
     "@tanstack/eslint-plugin-query": "^4.34.1",
     "@testing-library/jest-dom": "5.16.5",

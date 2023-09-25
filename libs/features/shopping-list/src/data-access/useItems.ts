@@ -42,38 +42,38 @@ function useItems() {
     queryFn: fetchItems,
     staleTime: Infinity,
   });
-  usePubSub<Item>({
-    channelName: 'items',
-    action: function (message) {
-      switch (message.type) {
-        case 'added':
-          data.updateCache((items) => {
-            if (items === void 0) return [];
-            return [...items, message.data];
-          });
-          break;
-        case 'updated':
-          data.updateCache((items) => {
-            if (items === void 0) return [];
-            const index = items.findIndex(
-              (item) => item.id === message.data.id
-            );
-            if (index === -1) {
-              return items;
-            }
-            const newItems = [...items];
-            newItems[index] = message.data;
-            return newItems;
-          });
-          break;
-        case 'deleted':
-          data.updateCache((items) => {
-            if (items === void 0) return [];
-            return items.filter((item) => item.id !== message.data.id);
-          });
-      }
-    },
-  });
+  // usePubSub<Item>({
+  //   channelName: 'items',
+  //   action: function (message) {
+  //     switch (message.type) {
+  //       case 'added':
+  //         data.updateCache((items) => {
+  //           if (items === void 0) return [];
+  //           return [...items, message.data];
+  //         });
+  //         break;
+  //       case 'updated':
+  //         data.updateCache((items) => {
+  //           if (items === void 0) return [];
+  //           const index = items.findIndex(
+  //             (item) => item.id === message.data.id
+  //           );
+  //           if (index === -1) {
+  //             return items;
+  //           }
+  //           const newItems = [...items];
+  //           newItems[index] = message.data;
+  //           return newItems;
+  //         });
+  //         break;
+  //       case 'deleted':
+  //         data.updateCache((items) => {
+  //           if (items === void 0) return [];
+  //           return items.filter((item) => item.id !== message.data.id);
+  //         });
+  //     }
+  //   },
+  // });
   return {
     status: data.status,
     data: data.data,

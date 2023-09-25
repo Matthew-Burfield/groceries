@@ -1,5 +1,10 @@
-import { useEffect, useState } from 'react';
-import { useAsyncEffect } from './useAsyncEffect';
+import { useEffect, useMemo } from 'react';
+import * as Ably from 'ably';
+// import Constants from 'expo-constants';
+
+// const baseUri = Constants.expoConfig?.hostUri
+//   ? Constants.expoConfig?.hostUri.split(':').shift().concat(`:3000`)
+//   : `yourapi.com`;
 
 type Message<TData> = {
   type: 'added' | 'updated' | 'deleted';
@@ -18,29 +23,42 @@ async function usePubSub<TData>({
   channelName: string;
   action: (message: Message<TData>) => void;
 }) {
-  const [channel, setChannel] = useState<Channel | null>(null);
-  useAsyncEffect(
-    async () => {
-      const channel = await fetch(`/channel/${channelName}`).then((response) =>
-        response.json()
-      );
-      setChannel(channel);
-    },
-    async () => {
-      return void 0;
-    },
-    [channelName]
+  const pubsub = useMemo(
+    () =>
+      new Ably.Realtime({
+        async authCallback(_data, callback) {
+          try {
+            const tokenRequest = await fetch(
+              'http://localhost:3000/pubsub/auth'
+            )
+              .then((response) => response.json())
+              .then((tokenRequest) => tokenRequest);
+            callback(null, tokenRequest);
+          } catch (error) {
+            const errorMessage = `usePubSub: Error requesting token: ${JSON.stringify(
+              error
+            )}`;
+            callback(errorMessage, null);
+          }
+        },
+      }),
+    []
+  );
+
+  const channel = useMemo(
+    () => pubsub.channels.get(channelName),
+    [pubsub, channelName]
   );
 
   useEffect(() => {
-    if (channel !== null) {
-      channel.subscribe(action);
-    }
+    channel.subscribe(() => {
+      console.log('subscribed');
+    });
 
     return () => {
-      if (channel !== null) {
-        channel.unsubscribe();
-      }
+      channel.unsubscribe(() => {
+        console.log('unsubscribed');
+      });
     };
   }, [channel, action]);
 

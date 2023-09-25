@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { View } from 'react-native';
+import { Text, View } from 'react-native';
 import { Item, useItems } from './data-access/useItems';
 import { foodGroups } from './constants/food-groups';
 
@@ -19,14 +19,24 @@ type ShoppingListProps = {
 function ShoppingList(props: ShoppingListProps) {
   const { status, data: items, error } = useItems();
   if (status === 'loading') {
-    return <View>Loading...</View>;
+    return (
+      <View>
+        <Text>Loading...</Text>
+      </View>
+    );
   }
   if (error) {
-    return <View>{error.message}</View>;
+    return (
+      <View>
+        <Text>{error.message}</Text>
+      </View>
+    );
   }
   if (items === void 0) {
     return (
-      <View>To start creating your shopping list. Please add an item.</View>
+      <View>
+        <Text>To start creating your shopping list. Please add an item.</Text>
+      </View>
     );
   }
   return (

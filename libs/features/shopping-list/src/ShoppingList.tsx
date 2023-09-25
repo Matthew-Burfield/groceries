@@ -24,12 +24,14 @@ function ShoppingList(props: ShoppingListProps) {
   if (error) {
     return <View>{error.message}</View>;
   }
+  if (items === void 0) {
+    return (
+      <View>To start creating your shopping list. Please add an item.</View>
+    );
+  }
   return (
     <View>
       {foodGroups.map((group) => {
-        if (items === void 0) {
-          return null;
-        }
         const foodGroupItems = items.filter((item) => item.type === group);
         return (
           <React.Fragment key={group}>

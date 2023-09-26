@@ -1,2 +1,1 @@
-
-export * from './lib/shopping-items';
+export * from './lib/useShoppingListItems';

@@ -23,32 +23,25 @@ async function usePubSub<TData>({
   channelName: string;
   action: (message: Message<TData>) => void;
 }) {
-  const pubsub = useMemo(
-    () =>
-      new Ably.Realtime({
-        async authCallback(_data, callback) {
-          try {
-            const tokenRequest = await fetch(
-              'http://localhost:3000/pubsub/auth'
-            )
-              .then((response) => response.json())
-              .then((tokenRequest) => tokenRequest);
-            callback(null, tokenRequest);
-          } catch (error) {
-            const errorMessage = `usePubSub: Error requesting token: ${JSON.stringify(
-              error
-            )}`;
-            callback(errorMessage, null);
-          }
-        },
-      }),
-    []
-  );
+  const pubsub = useMemo(() => {
+    return new Ably.Realtime({
+      async authCallback(_data, callback) {
+        try {
+          const tokenRequest = await fetch('http://localhost:3000/pubsub/auth')
+            .then((response) => response.json())
+            .then((tokenRequest) => tokenRequest);
+          callback(null, tokenRequest);
+        } catch (error) {
+          const errorMessage = `usePubSub: Error requesting token: ${JSON.stringify(
+            error
+          )}`;
+          callback(errorMessage, null);
+        }
+      },
+    });
+  }, []);
 
-  const channel = useMemo(
-    () => pubsub.channels.get(channelName),
-    [pubsub, channelName]
-  );
+  const channel = pubsub.channels.get(channelName);
 
   useEffect(() => {
     channel.subscribe(() => {
@@ -61,8 +54,6 @@ async function usePubSub<TData>({
       });
     };
   }, [channel, action]);
-
-  return null;
 }
 
 export { usePubSub };

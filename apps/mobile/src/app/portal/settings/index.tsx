@@ -1,5 +1,5 @@
 import { SignedIn, SignedOut, useUser } from '@clerk/clerk-expo';
-import { SignOutButton } from '@groceries/auth';
+import { SignOutButton } from '@groceries/client/features';
 import { Link, Stack } from 'expo-router';
 import React from 'react';
 import { Text, View } from 'react-native';

@@ -1,4 +1,4 @@
-import { SignInWithGoogle } from '@groceries/auth';
+import { SignInWithGoogle } from '@groceries/client/features';
 import { Link } from 'expo-router';
 import React from 'react';
 import { Text, View } from 'react-native';

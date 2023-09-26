@@ -15,14 +15,11 @@
     "skipDefaultLibCheck": true,
     "baseUrl": ".",
     "paths": {
-      "@groceries/auth": ["libs/auth/src/index.ts"],
-      "@groceries/client/util/remote-data": [
-        "libs/client/util/remote-data/src/index.ts"
-      ],
-      "@groceries/features/shopping-list": [
-        "libs/features/shopping-list/src/index.ts"
-      ],
-      "@groceries/ui/checkbox": ["libs/ui/checkbox/src/index.ts"]
+      "@groceries/client/components": ["libs/client/components/src/index.ts"],
+      "@groceries/client/constants": ["libs/client/constants/src/index.ts"],
+      "@groceries/client/data": ["libs/client/data/src/index.ts"],
+      "@groceries/client/features": ["libs/client/features/src/index.ts"],
+      "@groceries/client/utils": ["libs/client/utils/src/index.ts"]
     }
   },
   "exclude": ["node_modules", "tmp"]

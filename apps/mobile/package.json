@@ -22,7 +22,8 @@
     "expo-router": "*",
     "lucide-react-native": "*",
     "@expo/vector-icons": "*",
-    "@tanstack/react-query": "*"
+    "@tanstack/react-query": "*",
+    "ably": "*"
   },
   "scripts": {
     "eas-build-pre-install": "cd ../../ && node tools/scripts/eas-build-pre-install.mjs . apps/mobile && cp package-lock.json apps/mobile",

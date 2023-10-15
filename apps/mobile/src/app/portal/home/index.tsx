@@ -43,6 +43,7 @@ function Home() {
   }
   return (
     <>
+      <Text>Home: {JSON.stringify({ status, items, error })}</Text>
       <Stack.Screen options={{ title: 'Home Stack' }} />
       <ShoppingList>
         {FOOD_GROUPS.map((group) => {

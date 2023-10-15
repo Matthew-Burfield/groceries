@@ -1,5 +1,5 @@
-import { useGetData } from '@groceries/client/utils';
-import { FoodGroup, FOOD_GROUPS } from '@groceries/client/constants';
+import { fetch, useGetData } from '@groceries/client/utils';
+import { FoodGroup } from '@groceries/client/constants';
 
 type Item = {
   id: number;
@@ -13,26 +13,10 @@ type Error = {
   message: string;
 };
 
-async function convertDummyTodosIntoItems(response: Response): Promise<Item[]> {
-  const jsonResponse = await response.json();
-  const todos: {
-    id: number;
-    todo: string;
-    userId: number;
-    completed: boolean;
-  }[] = jsonResponse.todos;
-  if (todos === void 0) return [];
-  return todos.map((todo) => ({
-    id: todo.id,
-    name: todo.todo,
-    type: FOOD_GROUPS[Math.floor(Math.random() * FOOD_GROUPS.length)],
-    isComplete: todo.completed,
-  }));
-}
-
 async function fetchItems() {
-  const response = await fetch('https://dummyjson.com/todos');
-  const items: Item[] = await convertDummyTodosIntoItems(response);
+  const response = await fetch('/api/shopping-list');
+  const items = await response.json();
+  console.log(items);
   return items;
 }
 

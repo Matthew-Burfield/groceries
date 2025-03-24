@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { prisma } from '@/lib/prisma';
-import { requireAuth } from '@/lib/auth';
+import { requireAuth, getServerCurrentUser } from '@/lib/auth';
 
 // Validation schema for creating a meal plan entry
 const createEntrySchema = z.object({
@@ -19,150 +19,170 @@ export async function POST(
   request: NextRequest,
   { params }: { params: { id: string } }
 ) {
-  return requireAuth(request, async (user, req) => {
-    try {
-      const mealPlanId = Number(params.id);
-      
-      if (isNaN(mealPlanId)) {
-        return NextResponse.json(
-          { error: 'Invalid meal plan ID' },
-          { status: 400 }
-        );
-      }
-      
-      // Check content type to determine how to parse the request body
-      const contentType = req.headers.get('content-type') || '';
-      
-      let formData;
-      
-      if (contentType.includes('application/json')) {
-        // Parse JSON data
-        formData = await req.json();
-      } else if (contentType.includes('application/x-www-form-urlencoded') || contentType.includes('multipart/form-data')) {
-        // Parse form data
-        const formDataObj = await req.formData();
-        formData = {
-          mealId: Number(formDataObj.get('mealId')),
-          dayOfWeek: formDataObj.get('dayOfWeek')
-        };
-      } else {
-        return NextResponse.json(
-          { error: 'Unsupported content type' },
-          { status: 400 }
-        );
-      }
-      
-      const validation = createEntrySchema.safeParse(formData);
-      if (!validation.success) {
-        return NextResponse.json(
-          { error: 'Invalid input', details: validation.error.format() },
-          { status: 400 }
-        );
-      }
-      
-      const { mealId, dayOfWeek } = validation.data;
-      
-      // Get the meal plan
-      const mealPlan = await prisma.mealPlan.findUnique({
-        where: { id: mealPlanId },
-      });
-      
-      if (!mealPlan) {
-        return NextResponse.json(
-          { error: 'Meal plan not found' },
-          { status: 404 }
-        );
-      }
-      
-      // Check if user is a member of the family
-      const familyMember = await prisma.familyMember.findUnique({
-        where: {
-          familyId_userId: {
-            familyId: mealPlan.familyId,
-            userId: user.id,
-          },
-        },
-      });
-      
-      if (!familyMember) {
-        return NextResponse.json(
-          { error: 'You do not have access to this meal plan' },
-          { status: 403 }
-        );
-      }
-      
-      // Check if meal belongs to the family
-      const meal = await prisma.meal.findFirst({
-        where: {
-          id: mealId,
-          familyId: mealPlan.familyId,
-        },
-      });
-      
-      if (!meal) {
-        return NextResponse.json(
-          { error: 'Meal not found or does not belong to your family' },
-          { status: 404 }
-        );
-      }
-      
-      // Check if an entry for this day already exists
-      const existingEntry = await prisma.mealPlanEntry.findUnique({
-        where: {
-          mealPlanId_dayOfWeek: {
-            mealPlanId,
-            dayOfWeek: dayOfWeek.toLowerCase(),
-          },
-        },
-      });
-      
-      let entry;
-      
-      if (existingEntry) {
-        // Update the existing entry
-        entry = await prisma.mealPlanEntry.update({
-          where: {
-            id: existingEntry.id,
-          },
-          data: {
-            mealId,
-          },
-          include: {
-            meal: true,
-          },
-        });
-      } else {
-        // Create a new entry
-        entry = await prisma.mealPlanEntry.create({
-          data: {
-            mealPlanId,
-            mealId,
-            dayOfWeek: dayOfWeek.toLowerCase(),
-          },
-          include: {
-            meal: true,
-          },
-        });
-      }
-      
-      // For form submissions, redirect back to the meal plan page
-      if (contentType.includes('application/x-www-form-urlencoded') || contentType.includes('multipart/form-data')) {
-        return NextResponse.redirect(new URL(`/meal-plans/${mealPlanId}`, req.url));
-      }
-      
+  try {
+    const user = await getServerCurrentUser();
+    
+    if (!user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+    
+    const body = await request.json();
+    const { mealId, dayOfWeek } = body;
+    
+    if (!mealId || !dayOfWeek) {
       return NextResponse.json(
-        {
-          message: 'Meal plan entry created successfully',
-          entry,
-        },
-        { status: 201 }
-      );
-    } catch (error) {
-      console.error('Create meal plan entry error:', error);
-      return NextResponse.json(
-        { error: 'An error occurred while creating the meal plan entry' },
-        { status: 500 }
+        { error: 'Missing required fields' },
+        { status: 400 }
       );
     }
-  });
+    
+    // Get the meal plan
+    const mealPlan = await prisma.mealPlan.findUnique({
+      where: {
+        id: Number(params.id),
+      },
+      include: {
+        family: {
+          include: {
+            members: true,
+          },
+        },
+      },
+    });
+    
+    if (!mealPlan) {
+      return NextResponse.json(
+        { error: 'Meal plan not found' },
+        { status: 404 }
+      );
+    }
+    
+    // Check if user has access to this meal plan's family
+    const hasAccess = mealPlan.family.members.some(
+      (member) => member.userId === Number(user.id)
+    );
+    
+    if (!hasAccess) {
+      return NextResponse.json(
+        { error: 'Unauthorized access to meal plan' },
+        { status: 403 }
+      );
+    }
+    
+    // Check if meal exists
+    const meal = await prisma.meal.findUnique({
+      where: {
+        id: Number(mealId),
+      },
+    });
+    
+    if (!meal) {
+      return NextResponse.json(
+        { error: 'Meal not found' },
+        { status: 404 }
+      );
+    }
+    
+    // Check if an entry already exists for this day
+    const existingEntry = await prisma.mealPlanEntry.findFirst({
+      where: {
+        mealPlanId: Number(params.id),
+        dayOfWeek,
+      },
+    });
+    
+    if (existingEntry) {
+      return NextResponse.json(
+        { error: 'An entry already exists for this day' },
+        { status: 400 }
+      );
+    }
+    
+    // Create the entry
+    const entry = await prisma.mealPlanEntry.create({
+      data: {
+        mealPlanId: Number(params.id),
+        mealId: Number(mealId),
+        dayOfWeek,
+      },
+      include: {
+        meal: true,
+      },
+    });
+    
+    return NextResponse.json(entry);
+  } catch (error) {
+    console.error('Error creating meal plan entry:', error);
+    return NextResponse.json(
+      { error: 'Internal server error' },
+      { status: 500 }
+    );
+  }
+}
+
+export async function GET(
+  request: NextRequest,
+  { params }: { params: { id: string } }
+) {
+  try {
+    const user = await getServerCurrentUser();
+    
+    if (!user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+    
+    // Get the meal plan
+    const mealPlan = await prisma.mealPlan.findUnique({
+      where: {
+        id: Number(params.id),
+      },
+      include: {
+        family: {
+          include: {
+            members: true,
+          },
+        },
+      },
+    });
+    
+    if (!mealPlan) {
+      return NextResponse.json(
+        { error: 'Meal plan not found' },
+        { status: 404 }
+      );
+    }
+    
+    // Check if user has access to this meal plan's family
+    const hasAccess = mealPlan.family.members.some(
+      (member) => member.userId === Number(user.id)
+    );
+    
+    if (!hasAccess) {
+      return NextResponse.json(
+        { error: 'Unauthorized access to meal plan' },
+        { status: 403 }
+      );
+    }
+    
+    // Get all entries for the meal plan
+    const entries = await prisma.mealPlanEntry.findMany({
+      where: {
+        mealPlanId: Number(params.id),
+      },
+      include: {
+        meal: true,
+      },
+      orderBy: {
+        dayOfWeek: 'asc',
+      },
+    });
+    
+    return NextResponse.json(entries);
+  } catch (error) {
+    console.error('Error fetching meal plan entries:', error);
+    return NextResponse.json(
+      { error: 'Internal server error' },
+      { status: 500 }
+    );
+  }
 } 

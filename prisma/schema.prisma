@@ -99,6 +99,8 @@ model MealPlan {
   family      Family          @relation(fields: [familyId], references: [id])
   entries     MealPlanEntry[]
   shoppingList ShoppingList?
+
+  @@unique([familyId, weekStart])
 }
 
 model MealPlanEntry {

@@ -1,0 +1,165 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            Int             @id @default(autoincrement())
+  username      String          @unique
+  email         String          @unique
+  passwordHash  String
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+  familyMembers FamilyMember[]
+}
+
+model Family {
+  id            Int             @id @default(autoincrement())
+  name          String
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+  members       FamilyMember[]
+  meals         Meal[]
+  mealPlans     MealPlan[]
+  shoppingLists ShoppingList[]
+  stapleItems   StapleItem[]
+  inventory     Inventory[]
+}
+
+model FamilyMember {
+  id        Int      @id @default(autoincrement())
+  familyId  Int
+  userId    Int
+  isAdmin   Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  family    Family   @relation(fields: [familyId], references: [id])
+  user      User     @relation(fields: [userId], references: [id])
+
+  @@unique([familyId, userId])
+}
+
+model Category {
+  id          Int          @id @default(autoincrement())
+  name        String
+  ingredients Ingredient[]
+}
+
+model Ingredient {
+  id              Int                @id @default(autoincrement())
+  name            String
+  unit            String
+  categoryId      Int
+  category        Category           @relation(fields: [categoryId], references: [id])
+  mealIngredients MealIngredient[]
+  shoppingItems   ShoppingListItem[]
+  stapleItems     StapleItem[]
+  inventory       Inventory[]
+}
+
+model Meal {
+  id              Int              @id @default(autoincrement())
+  name            String
+  description     String?
+  familyId        Int
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+  family          Family           @relation(fields: [familyId], references: [id])
+  ingredients     MealIngredient[]
+  mealPlanEntries MealPlanEntry[]
+}
+
+model MealIngredient {
+  id           Int        @id @default(autoincrement())
+  mealId       Int
+  ingredientId Int
+  quantity     Float
+  meal         Meal       @relation(fields: [mealId], references: [id])
+  ingredient   Ingredient @relation(fields: [ingredientId], references: [id])
+
+  @@unique([mealId, ingredientId])
+}
+
+model MealPlan {
+  id          Int             @id @default(autoincrement())
+  familyId    Int
+  weekStart   DateTime
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+  family      Family          @relation(fields: [familyId], references: [id])
+  entries     MealPlanEntry[]
+  shoppingList ShoppingList?
+}
+
+model MealPlanEntry {
+  id         Int      @id @default(autoincrement())
+  mealPlanId Int
+  mealId     Int
+  dayOfWeek  String
+  mealPlan   MealPlan @relation(fields: [mealPlanId], references: [id], onDelete: Cascade)
+  meal       Meal     @relation(fields: [mealId], references: [id])
+
+  @@unique([mealPlanId, dayOfWeek])
+}
+
+model ShoppingList {
+  id          Int                @id @default(autoincrement())
+  familyId    Int
+  mealPlanId  Int                @unique
+  status      String             @default("draft") // draft, active, completed
+  createdAt   DateTime           @default(now())
+  updatedAt   DateTime           @updatedAt
+  family      Family             @relation(fields: [familyId], references: [id])
+  mealPlan    MealPlan           @relation(fields: [mealPlanId], references: [id])
+  items       ShoppingListItem[]
+}
+
+model ShoppingListItem {
+  id             Int          @id @default(autoincrement())
+  shoppingListId Int
+  ingredientId   Int
+  quantity       Float
+  checked        Boolean      @default(false)
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+  shoppingList   ShoppingList @relation(fields: [shoppingListId], references: [id], onDelete: Cascade)
+  ingredient     Ingredient   @relation(fields: [ingredientId], references: [id])
+
+  @@unique([shoppingListId, ingredientId])
+}
+
+model StapleItem {
+  id           Int        @id @default(autoincrement())
+  familyId     Int
+  ingredientId Int
+  quantity     Float
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+  family       Family     @relation(fields: [familyId], references: [id])
+  ingredient   Ingredient @relation(fields: [ingredientId], references: [id])
+
+  @@unique([familyId, ingredientId])
+}
+
+model Inventory {
+  id           Int        @id @default(autoincrement())
+  familyId     Int
+  ingredientId Int
+  quantity     Float
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+  family       Family     @relation(fields: [familyId], references: [id])
+  ingredient   Ingredient @relation(fields: [ingredientId], references: [id])
+
+  @@unique([familyId, ingredientId])
+}

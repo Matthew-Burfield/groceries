@@ -1,0 +1,31 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+#Tech stack
+
+Frontend:
+
+    Framework: React with Next.js (for server-side rendering, routing, and a great developer experience)
+    State Management: React Context (simpler for this scope; Redux if complexity grows)
+    Styling: CSS Modules or Material-UI (for rapid UI development)
+
+Backend:
+
+    Framework: Node.js with Express (lightweight, JavaScript-based, pairs well with React)
+    Authentication: JSON Web Tokens (JWT) for secure user sessions
+
+Database:
+
+    Type: PostgreSQL (relational, structured data suits your needs for users, meals, and lists)
+    Hosting: AWS RDS (managed database service for scalability and ease)
+
+Real-time Updates:
+
+    Library: Socket.io (integrates with Node.js for real-time list updates)
+
+Deployment:
+
+    Cloud Provider: AWS (EC2 for backend, RDS for database, S3 for static assets if needed)
+    CI/CD: GitHub Actions (automated testing and deployment)

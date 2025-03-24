@@ -1,6 +1,7 @@
 import { redirect } from 'next/navigation';
 import { getServerCurrentUser } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
+import DeleteMealPlanForm from './DeleteMealPlanForm';
 
 export default async function MealPlanDetailPage({ params }: { params: { id: string } }) {
   const user = await getServerCurrentUser();
@@ -15,7 +16,9 @@ export default async function MealPlanDetailPage({ params }: { params: { id: str
     redirect('/setup-family');
   }
   
-  const id = Number(params.id);
+  // Make sure to wait for params to resolve before using it
+  const parsedId = await Promise.resolve(params.id);
+  const id = Number(parsedId);
   if (isNaN(id)) {
     redirect('/meal-plans');
   }
@@ -129,22 +132,7 @@ export default async function MealPlanDetailPage({ params }: { params: { id: str
                     View Shopping List
                   </a>
                 )}
-                <form 
-                  action={`/api/meal-plans/${id}`} 
-                  method="DELETE" 
-                  onSubmit={(e) => {
-                    if (!confirm('Are you sure you want to delete this meal plan?')) {
-                      e.preventDefault();
-                    }
-                  }}
-                >
-                  <button
-                    type="submit"
-                    className="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-red-600 bg-white hover:bg-gray-50"
-                  >
-                    Delete Plan
-                  </button>
-                </form>
+                <DeleteMealPlanForm id={id} />
               </div>
             </div>
             

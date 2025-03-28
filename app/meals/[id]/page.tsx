@@ -17,7 +17,7 @@ export default async function MealDetailPage({ params }: { params: { id: string 
   }
   
   // Make sure to wait for params to resolve before using it
-  const parsedId = await Promise.resolve(params.id);
+  const { id: parsedId } = await params
   const id = Number(parsedId);
   if (isNaN(id)) {
     redirect('/meals');

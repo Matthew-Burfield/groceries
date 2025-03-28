@@ -2,6 +2,7 @@ import { redirect } from 'next/navigation';
 import { getServerCurrentUser } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import DeleteMealPlanForm from './DeleteMealPlanForm';
+import AddMealForm from './components/AddMealForm';
 
 export default async function MealPlanDetailPage({ params }: { params: { id: string } }) {
   const user = await getServerCurrentUser();
@@ -150,47 +151,30 @@ export default async function MealPlanDetailPage({ params }: { params: { id: str
                         {entry ? (
                           <span>{entry.meal.name}</span>
                         ) : (
-                          <span className="text-gray-400">No meal planned</span>
+                          <div className="flex items-center space-x-2">
+                            <AddMealForm 
+                              mealPlanId={id}
+                              dayOfWeek={day.key}
+                              meals={familyMeals}
+                            />
+                          </div>
                         )}
                         
                         <div className="ml-4">
-                          <form 
-                            action={`/api/meal-plans/${id}/entries${entry ? `/${entry.id}` : ''}`} 
-                            method={entry ? "DELETE" : "POST"}
-                            className="inline-block"
-                          >
-                            {!entry && (
-                              <>
-                                <input type="hidden" name="dayOfWeek" value={day.key} />
-                                <select 
-                                  name="mealId" 
-                                  className="mr-2 shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm border-gray-300 rounded-md"
-                                  required
-                                >
-                                  <option value="">Select a meal</option>
-                                  {familyMeals.map((meal) => (
-                                    <option key={meal.id} value={meal.id}>
-                                      {meal.name}
-                                    </option>
-                                  ))}
-                                </select>
-                                <button
-                                  type="submit"
-                                  className="inline-flex items-center px-2.5 py-1.5 border border-transparent text-xs font-medium rounded text-white bg-blue-600 hover:bg-blue-700"
-                                >
-                                  Add
-                                </button>
-                              </>
-                            )}
-                            {entry && (
+                          {entry && (
+                            <form 
+                              action={`/api/meal-plans/${id}/entries/${entry.id}`} 
+                              method="DELETE"
+                              className="inline-block"
+                            >
                               <button
                                 type="submit"
                                 className="inline-flex items-center px-2.5 py-1.5 border border-transparent text-xs font-medium rounded text-red-600 hover:text-red-900"
                               >
                                 Remove
                               </button>
-                            )}
-                          </form>
+                            </form>
+                          )}
                         </div>
                       </dd>
                     </div>

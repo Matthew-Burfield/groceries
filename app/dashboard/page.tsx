@@ -22,6 +22,12 @@ export default async function DashboardPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
           <h1 className="text-2xl font-bold text-gray-900">Grocery List App</h1>
           <div className="flex items-center space-x-4">
+            <a 
+              href="/meals"
+              className="inline-flex items-center px-3 py-1 border border-transparent text-sm font-medium rounded-md text-gray-700 bg-gray-100 hover:bg-gray-200"
+            >
+              Manage Meals
+            </a>
             <span className="text-sm text-gray-600">
               Welcome, {user.username}
             </span>

@@ -10,3 +10,4 @@ alwaysApply: true
 - write thorough tests for all major functionality.
 - avoid making major changes to the patterns and architecture of how a feature works, after it has shown to work well, unless explicitly instructed.
 - always think about what other methods ard areas of code might be affected by code changes.
+- prefer form-urlencoded data when handling POST requests instead of json

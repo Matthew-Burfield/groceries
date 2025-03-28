@@ -26,8 +26,9 @@ export async function POST(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
     
-    const body = await request.json();
-    const { mealId, dayOfWeek } = body;
+    const formData = await request.formData();
+    const mealId = formData.get('mealId')?.toString();
+    const dayOfWeek = formData.get('dayOfWeek')?.toString();
     
     if (!mealId || !dayOfWeek) {
       return NextResponse.json(
@@ -35,6 +36,12 @@ export async function POST(
         { status: 400 }
       );
     }
+    
+    // Validate the data
+    const validatedData = createEntrySchema.parse({
+      mealId: Number(mealId),
+      dayOfWeek: dayOfWeek.toLowerCase(),
+    });
     
     // Get the meal plan
     const mealPlan = await prisma.mealPlan.findUnique({

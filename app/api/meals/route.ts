@@ -1,84 +1,26 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { z } from 'zod';
+import { NextRequest } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { requireAuth } from '@/lib/auth';
+import { createMealSchema } from '@/lib/validation';
+import { createApiResponse, createApiError, parseFormData, isFormSubmission, redirectTo, checkFamilyAccess } from '@/lib/api';
+import { Meal } from '@/lib/types';
 
-// Validation schema for creating a meal
-const createMealSchema = z.object({
-  familyId: z.number().int().positive(),
-  name: z.string().min(1, 'Name is required'),
-  description: z.string().optional(),
-  ingredients: z.array(z.object({
-    ingredientId: z.number().int().positive(),
-    quantity: z.number().positive(),
-  })).min(1, 'At least one ingredient is required'),
-});
-
-// POST to create a new meal
 export async function POST(request: NextRequest) {
   return requireAuth(request, async (user, req) => {
     try {
-      // Check content type to determine how to parse the request body
-      const contentType = req.headers.get('content-type') || '';
-      
-      let formData;
-      
-      if (contentType.includes('application/json')) {
-        // Parse JSON data
-        formData = await req.json();
-      } else if (contentType.includes('application/x-www-form-urlencoded') || contentType.includes('multipart/form-data')) {
-        // Parse form data
-        const formDataObj = await req.formData();
-        
-        // Extract ingredients array from form data
-        const ingredients = [];
-        let i = 0;
-        while (formDataObj.has(`ingredients[${i}][ingredientId]`)) {
-          ingredients.push({
-            ingredientId: Number(formDataObj.get(`ingredients[${i}][ingredientId]`)),
-            quantity: Number(formDataObj.get(`ingredients[${i}][quantity]`)),
-          });
-          i++;
-        }
-        
-        formData = {
-          familyId: Number(formDataObj.get('familyId')),
-          name: formDataObj.get('name'),
-          description: formDataObj.get('description'),
-          ingredients,
-        };
-      } else {
-        return NextResponse.json(
-          { error: 'Unsupported content type' },
-          { status: 400 }
-        );
-      }
-      
+      const formData = await parseFormData(req);
       const validation = createMealSchema.safeParse(formData);
+      
       if (!validation.success) {
-        return NextResponse.json(
-          { error: 'Invalid input', details: validation.error.format() },
-          { status: 400 }
-        );
+        return createApiError('Invalid input', 400);
       }
       
       const { familyId, name, description, ingredients } = validation.data;
       
       // Check if user is a member of the family
-      const familyMember = await prisma.familyMember.findUnique({
-        where: {
-          familyId_userId: {
-            familyId: Number(familyId),
-            userId: user.id,
-          },
-        },
-      });
-      
-      if (!familyMember) {
-        return NextResponse.json(
-          { error: 'You do not have access to this family' },
-          { status: 403 }
-        );
+      const hasAccess = await checkFamilyAccess(user, familyId);
+      if (!hasAccess) {
+        return createApiError('You do not have access to this family', 403);
       }
       
       // Create the meal and its ingredients in a transaction
@@ -107,25 +49,30 @@ export async function POST(request: NextRequest) {
       });
       
       // For form submissions, redirect to the meal detail page
-      if (contentType.includes('application/x-www-form-urlencoded') || contentType.includes('multipart/form-data')) {
-        return NextResponse.redirect(new URL(`/meals/${meal.id}`, req.url));
+      if (isFormSubmission(req.headers.get('content-type') || '')) {
+        return redirectTo(`/meals/${meal.id}`, req);
       }
       
-      // For API requests, return JSON
-      return NextResponse.json(
+      // For API requests, return JSON with ingredients
+      const mealWithIngredients: Meal = {
+        id: meal.id,
+        familyId: meal.familyId,
+        name: meal.name,
+        description: meal.description || undefined,
+        ingredients,
+      };
+      
+      return createApiResponse<{ message: string; meal: Meal }>(
         {
           message: 'Meal created successfully',
-          meal,
+          meal: mealWithIngredients,
         },
-        { status: 201 }
+        201
       );
       
     } catch (error) {
       console.error('Create meal error:', error);
-      return NextResponse.json(
-        { error: 'An error occurred while creating the meal' },
-        { status: 500 }
-      );
+      return createApiError('An error occurred while creating the meal', 500);
     }
   });
 } 

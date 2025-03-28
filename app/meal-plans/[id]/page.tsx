@@ -3,6 +3,7 @@ import { getServerCurrentUser } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import DeleteMealPlanForm from './DeleteMealPlanForm';
 import AddMealForm from './components/AddMealForm';
+import GenerateShoppingListButton from './components/GenerateShoppingListButton';
 
 export default async function MealPlanDetailPage({ params }: { params: { id: string } }) {
   const user = await getServerCurrentUser();
@@ -30,7 +31,15 @@ export default async function MealPlanDetailPage({ params }: { params: { id: str
     include: {
       entries: {
         include: {
-          meal: true,
+          meal: {
+            include: {
+              ingredients: {
+                include: {
+                  ingredient: true,
+                },
+              },
+            },
+          },
         },
       },
       family: true,
@@ -117,21 +126,17 @@ export default async function MealPlanDetailPage({ params }: { params: { id: str
               </div>
               <div className="flex space-x-3">
                 {!shoppingList ? (
-                  <form action={`/api/meal-plans/${id}/generate-shopping-list`} method="POST">
-                    <button
-                      type="submit"
+                  <GenerateShoppingListButton mealPlanId={id} />
+                ) : (
+                  <>
+                    <a
+                      href={`/shopping-lists/${shoppingList.id}`}
                       className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700"
                     >
-                      Generate Shopping List
-                    </button>
-                  </form>
-                ) : (
-                  <a
-                    href={`/shopping-lists/${shoppingList.id}`}
-                    className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700"
-                  >
-                    View Shopping List
-                  </a>
+                      View Shopping List
+                    </a>
+                    <GenerateShoppingListButton mealPlanId={id} existingShoppingListId={shoppingList.id} />
+                  </>
                 )}
                 <DeleteMealPlanForm id={id} />
               </div>

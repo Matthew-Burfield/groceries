@@ -1,6 +1,7 @@
 import { redirect } from 'next/navigation';
 import { getServerCurrentUser } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
+import ShoppingListItem from './components/ShoppingListItem';
 
 export default async function ShoppingListDetailPage({ params }: { params: { id: string } }) {
   const user = await getServerCurrentUser();
@@ -131,26 +132,15 @@ export default async function ShoppingListDetailPage({ params }: { params: { id:
                   </div>
                   <ul className="divide-y divide-gray-200">
                     {items.map((item) => (
-                      <li key={item.id} className="px-4 py-4 sm:px-6">
-                        <form action={`/api/shopping-lists/${shoppingList.id}/items/${item.id}/toggle`} method="POST" className="flex items-center justify-between">
-                          <div className="flex items-center">
-                            <input
-                              type="checkbox"
-                              checked={item.checked}
-                              onChange={(e) => e.target.form?.requestSubmit()}
-                              className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-                            />
-                            <p className="ml-3 text-sm font-medium text-gray-900">
-                              {item.ingredient.name}
-                            </p>
-                          </div>
-                          <div className="ml-2 flex-shrink-0 flex">
-                            <p className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
-                              {item.quantity} {item.ingredient.unit}
-                            </p>
-                          </div>
-                        </form>
-                      </li>
+                      <ShoppingListItem
+                        key={item.id}
+                        id={item.id}
+                        name={item.ingredient.name}
+                        quantity={item.quantity}
+                        unit={item.ingredient.unit}
+                        checked={item.checked}
+                        shoppingListId={shoppingList.id}
+                      />
                     ))}
                   </ul>
                 </div>

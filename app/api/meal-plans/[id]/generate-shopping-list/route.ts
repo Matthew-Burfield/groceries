@@ -9,9 +9,11 @@ export async function POST(
 ) {
   return requireAuth(request, async (user, req) => {
     try {
+      console.log('Generating shopping list for meal plan:', params.id);
       const mealPlanId = Number(params.id);
       
       if (isNaN(mealPlanId)) {
+        console.error('Invalid meal plan ID:', params.id);
         return NextResponse.json(
           { error: 'Invalid meal plan ID' },
           { status: 400 }
@@ -39,11 +41,14 @@ export async function POST(
       });
       
       if (!mealPlan) {
+        console.error('Meal plan not found:', mealPlanId);
         return NextResponse.json(
           { error: 'Meal plan not found' },
           { status: 404 }
         );
       }
+      
+      console.log('Found meal plan with entries:', mealPlan.entries.length);
       
       // Check if user is a member of the family
       const familyMember = await prisma.familyMember.findUnique({
@@ -67,14 +72,11 @@ export async function POST(
         where: { mealPlanId },
       });
       
+      // If a shopping list exists, delete it and its items first
       if (existingShoppingList) {
-        return NextResponse.json(
-          { 
-            message: 'Shopping list already exists for this meal plan',
-            shoppingList: existingShoppingList,
-          },
-          { status: 200 }
-        );
+        await prisma.shoppingList.delete({
+          where: { id: existingShoppingList.id },
+        });
       }
       
       // Combine all ingredients from the meal plan entries

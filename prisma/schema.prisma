@@ -34,6 +34,7 @@ model Family {
   shoppingLists ShoppingList[]
   stapleItems   StapleItem[]
   inventory     Inventory[]
+  ingredients   Ingredient[]
 }
 
 model FamilyMember {
@@ -60,11 +61,15 @@ model Ingredient {
   name            String
   unit            String
   categoryId      Int
+  familyId        Int
   category        Category           @relation(fields: [categoryId], references: [id])
+  family          Family             @relation(fields: [familyId], references: [id])
   mealIngredients MealIngredient[]
   shoppingItems   ShoppingListItem[]
   stapleItems     StapleItem[]
   inventory       Inventory[]
+
+  @@unique([name, familyId])
 }
 
 model Meal {

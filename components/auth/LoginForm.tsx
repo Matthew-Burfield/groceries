@@ -48,6 +48,7 @@ export default function LoginForm() {
       }
       
       // Redirect to dashboard on successful login
+      console.log('Redirecting to dashboard');
       router.push('/dashboard');
       router.refresh();
     } catch (err) {

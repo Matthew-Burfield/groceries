@@ -8,13 +8,34 @@ const createIngredientSchema = z.object({
   name: z.string().min(1, 'Name is required'),
   unit: z.string().min(1, 'Unit is required'),
   categoryId: z.number().int().positive(),
+  familyId: z.number().int().positive(),
 });
 
 // GET all ingredients
 export async function GET(request: NextRequest) {
   return requireAuth(request, async (user, req) => {
     try {
+      // Get the user's family
+      const familyMember = await prisma.familyMember.findFirst({
+        where: {
+          userId: user.id,
+        },
+        include: {
+          family: true,
+        },
+      });
+
+      if (!familyMember) {
+        return NextResponse.json(
+          { error: 'No family found' },
+          { status: 404 }
+        );
+      }
+
       const ingredients = await prisma.ingredient.findMany({
+        where: {
+          familyId: familyMember.familyId,
+        },
         include: {
           category: true,
         },
@@ -38,6 +59,23 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   return requireAuth(request, async (user, req) => {
     try {
+      // Get the user's family
+      const familyMember = await prisma.familyMember.findFirst({
+        where: {
+          userId: user.id,
+        },
+        include: {
+          family: true,
+        },
+      });
+
+      if (!familyMember) {
+        return NextResponse.json(
+          { error: 'No family found' },
+          { status: 404 }
+        );
+      }
+
       // Check content type to determine how to parse the request body
       const contentType = req.headers.get('content-type') || '';
       
@@ -54,6 +92,7 @@ export async function POST(request: NextRequest) {
           name: formDataObj.get('name'),
           unit: formDataObj.get('unit'),
           categoryId: Number(formDataObj.get('categoryId')),
+          familyId: familyMember.familyId,
         };
       } else {
         return NextResponse.json(
@@ -71,22 +110,35 @@ export async function POST(request: NextRequest) {
         );
       }
 
-      const { name, unit, categoryId } = validation.data;
+      const { name, unit, categoryId, familyId } = validation.data;
 
-      // Check if ingredient already exists
+      // Check if ingredient already exists for this family
       const existingIngredient = await prisma.ingredient.findFirst({
         where: {
           name: {
             equals: name,
             mode: 'insensitive',
           },
+          familyId,
         },
       });
 
       if (existingIngredient) {
         return NextResponse.json(
-          { error: 'An ingredient with this name already exists' },
+          { error: 'An ingredient with this name already exists in your family' },
           { status: 400 }
+        );
+      }
+
+      // Check if category exists
+      const category = await prisma.category.findUnique({
+        where: { id: categoryId },
+      });
+
+      if (!category) {
+        return NextResponse.json(
+          { error: 'Category not found' },
+          { status: 404 }
         );
       }
 
@@ -94,7 +146,16 @@ export async function POST(request: NextRequest) {
         data: {
           name,
           unit,
-          categoryId,
+          category: {
+            connect: {
+              id: categoryId,
+            },
+          },
+          family: {
+            connect: {
+              id: familyId,
+            },
+          },
         },
         include: {
           category: true,

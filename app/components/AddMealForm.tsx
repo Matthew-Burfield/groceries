@@ -5,7 +5,10 @@ import { useRouter } from 'next/navigation';
 interface AddMealFormProps {
   mealPlanId: number;
   dayOfWeek: string;
-  meals: Array<{ id: number; name: string }>;
+  meals: Array<{
+    id: number;
+    name: string;
+  }>;
 }
 
 export default function AddMealForm({ mealPlanId, dayOfWeek, meals }: AddMealFormProps) {

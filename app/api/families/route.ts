@@ -23,7 +23,14 @@ export async function POST(request: NextRequest) {
       
       const { name } = validation.data;
       
-      // Create family and add the current user as an admin
+      // Get the current week's start date (Monday)
+      const today = new Date();
+      const day = today.getDay();
+      const diff = today.getDate() - day + (day === 0 ? -6 : 1); // Adjust when day is Sunday
+      const weekStart = new Date(today.setDate(diff));
+      weekStart.setHours(0, 0, 0, 0);
+      
+      // Create family, add the current user as an admin, and create a meal plan
       const family = await prisma.$transaction(async (tx: PrismaClient) => {
         const newFamily = await tx.family.create({
           data: {
@@ -36,6 +43,14 @@ export async function POST(request: NextRequest) {
             familyId: newFamily.id,
             userId: user.id,
             isAdmin: true,
+          },
+        });
+        
+        // Create a meal plan for the current week
+        await tx.mealPlan.create({
+          data: {
+            familyId: newFamily.id,
+            weekStart,
           },
         });
         
